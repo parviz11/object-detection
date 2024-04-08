@@ -1,1 +1,4 @@
 .DS_Store
+yolov7/
+yolov5s.pt
+obj_det.py
