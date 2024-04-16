@@ -16,7 +16,7 @@ class ObjectDetectorYOLOv5:
         :param url: Has to be as youtube URL,on which prediction is made.
         :param out_file: A valid output file name.
         """
-        
+
         self.model = self.load_model()
         self.classes = self.model.names
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -36,6 +36,16 @@ class ObjectDetectorYOLOv5:
         :return: Trained Pytorch model.
         """
         model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True)
+        return model
+
+    def load_model_locally(self, model_path="models/yolov5s.pt"):
+        """
+        Loads YOLOv5 model from a locally saved file.
+        :param model_path: Path to the locally saved YOLOv5 model file.
+        :return: Trained PyTorch model.
+        """
+        model = torch.load(model_path, map_location=self.device)['model']
+        model.to(self.device).eval()
         return model
 
     def score_frame(self, frame):
@@ -91,13 +101,13 @@ class ObjectDetectorYOLOv5:
         if not cap.isOpened():
             print("Error: Couldn't open webcam.")
             return
-        
+
         while True:
             ret, frame = cap.read()  # Read frame from webcam
             if not ret:
                 print("Error: Couldn't read frame from webcam.")
                 break
-            
+
             start_time = time()  # Measure the FPS
             results = self.score_frame(frame)  # Score the frame
             frame = self.plot_boxes(results, frame)  # Plot the boxes
@@ -109,7 +119,7 @@ class ObjectDetectorYOLOv5:
 
             if cv2.waitKey(1) & 0xFF == ord('q'):  # Exit on 'q' key press
                 break
-        
+
         cap.release()
         cv2.destroyAllWindows()
 
